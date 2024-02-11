@@ -1,0 +1,55 @@
+{% extends 'Clientes/home.html' %}
+
+
+{% block titulo %}
+    <h1> Sucursales</h1>
+{% endblock titulo %}   
+
+{% block contenido %}
+    <table>
+        <tr>
+            <td width="200"><h5>Agregar Sucursal</h5></td>
+            <td>
+                <a
+                href="{% url 'sucursal_create' %}"
+                class="btn btn-primary btn-sm"
+                ><i class="fa fa-plus fa-lg" title="Crear"> </i>
+                </a>
+            </td>
+        </tr>
+    </table>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Direccion</th>
+                <th>Numero</th>
+                <th>Ciudad</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for s in sucursal_list  %}
+            <tr>
+                <td>{{ s.id }}</td>
+                <td>{{ s.direccion }}</td>
+                <td>{{ s.numero }}</td>
+                <td>{{ s.ciudad }}</td>
+                <td>
+                    <a
+                      href="{% url 'sucursal_update' s.id %}"   
+                      class="btn btn-warning"
+                      style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;"
+                      ><i class="fa fa-edit fa-sm" title="Edit Record"></i>
+                    </a>
+                    <a
+                      href="{% url 'sucursal_delete' s.id %}"   
+                      class="btn btn-danger"
+                      style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;"
+                      ><i class="fa fa-trash fa-sm" title="Delete Record"></i>
+                    </a>                
+                  </td>
+            </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+{% endblock contenido %}

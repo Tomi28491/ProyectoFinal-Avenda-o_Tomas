@@ -1,17 +1,11 @@
-from django import forms  
+from django import forms 
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 
-class Crear_cuentaForm(forms.Form):
-    usuario = forms.CharField(max_length=50, required=True)
-    email = forms.EmailField(max_length=50, required=True)
-    contraseña = forms.IntegerField(required=True)
-
-class ProductoForm(forms.Form):
-    nombre = forms.CharField(max_length=50, required=True)
-    cantidad = forms.IntegerField(required=True)
-    color = forms.CharField(max_length=50, required=True)
-    precio = forms.FloatField(required=True)
-
-class SucursalForm(forms.Form):
-    direccion = forms.CharField(max_length=50, required=True)
-    numero = forms.IntegerField(required=True)
-    ciudad = forms.CharField(max_length=50, required=True)
+class RegistroForm( UserCreationForm):
+    email = forms.EmailField(required=True)
+    password1 = forms.CharField(label="Contraseña",widget=forms.PasswordInput)
+    password2 = forms.CharField(label="Confirmar Contraseña", widget=forms.PasswordInput)
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2']

@@ -1,0 +1,57 @@
+{% extends 'Clientes/home.html' %}
+
+
+{% block titulo %}
+    <h1> Productos</h1>
+{% endblock titulo %}   
+
+{% block contenido %}
+    <table>
+        <tr>
+            <td width="200"><h5>Agregar Producto</h5></td>
+            <td>
+                <a
+                href="{% url 'producto_create' %}"
+                class="btn btn-primary btn-sm"
+                ><i class="fa fa-plus fa-lg" title="Crear"> </i>
+                </a>
+            </td>
+        </tr>
+    </table>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Color</th>
+                <th>Precio U</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for p in producto_list  %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.producto }}</td>
+                <td>{{ p.cantidad }}</td>
+                <td>{{ p.color }}</td>
+                <td>{{ p.precio }}</td>
+                <td>
+                    <a
+                      href="{% url 'producto_update' p.id %}"   
+                      class="btn btn-warning"
+                      style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;"
+                      ><i class="fa fa-edit fa-sm" title="Edit Record"></i>
+                    </a>
+                    <a
+                      href="{% url 'producto_delete' p.id %}"   
+                      class="btn btn-danger"
+                      style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;"
+                      ><i class="fa fa-trash fa-sm" title="Delete Record"></i>
+                    </a>                
+                  </td>
+            </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+{% endblock contenido %}

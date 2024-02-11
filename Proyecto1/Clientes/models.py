@@ -1,18 +1,22 @@
 from django.db import models
 
 # Create your models here.
-class Usuario(models.Model):
-    usuario = models.CharField(max_length=50)
-    email = models.EmailField()
-    password = models.IntegerField()
-
+class Pago(models.Model):
+    tarjetaCredito = models.BooleanField()
+    tarjetaDebito = models.BooleanField()
+    transferencia = models.BooleanField()
+    efectivo = models.BooleanField()
+    def __str__(self):
+        return f'Medio de Pago {self.id}'
 
 class Producto(models.Model):
-    nombre_producto = models.CharField(max_length=50)
+    producto = models.CharField(max_length=50)
     cantidad = models.IntegerField()
     color = models.CharField(max_length=50)
     precio = models.FloatField()
-
+    def __str__(self):
+        return f"{self.cantidad} {self.producto}, {self.color}"
+    
 
 class Sucursal(models.Model):
     direccion = models.CharField(max_length=50)
@@ -21,6 +25,8 @@ class Sucursal(models.Model):
     class Meta:
         verbose_name = "Sucursal"
         verbose_name_plural = "Sucursales"
+    def __str__(self):
+        return f"{self.direccion} {self.numero}, {self.ciudad}"
     
 
 

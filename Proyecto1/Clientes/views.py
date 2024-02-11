@@ -1,73 +1,122 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.urls import reverse_lazy
+
 from .models import *
 from .forms import *
 
-# Create your views here.
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate, login
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+#--------------------------------------------------------------------------HOME
 def home(request):
     return render(request, "Clientes/home.html")
 
+#--------------------------------------------------------------------------PAGOS
+class PagoList(LoginRequiredMixin, ListView):
+    model = Pago
 
-def crear_cuenta(request):
-    if request.method == "POST":
-        miForm = Crear_cuentaForm(request.POST)
-        if miForm.is_valid():
-            cuenta_nombre = miForm.cleaned_data.get("usuario")
-            cuenta_mail = miForm.cleaned_data.get("email")
-            cuenta_password = miForm.cleaned_data.get("contraseña")
-            cuenta = Usuario(usuario=cuenta_nombre, email=cuenta_mail, password=cuenta_password)
-            cuenta.save()
-            return render(request, "Clientes/home.html")
+class PagoCreate(LoginRequiredMixin, CreateView):
+    model = Pago
+    fields = ['tarjetaCredito', 'tarjetaDebito', 'transferencia', 'efectivo']
+    success_url = reverse_lazy('mediosPago')   
 
-    else:    
-        miForm = Crear_cuentaForm()
+class PagoUpdate(LoginRequiredMixin, UpdateView):
+    model = Pago
+    fields = ['tarjetaCredito', 'tarjetaDebito', 'transferencia', 'efectivo']
+    success_url = reverse_lazy('mediosPago')
+    
+class PagoDelete(LoginRequiredMixin, DeleteView):
+    model = Pago
+    success_url = reverse_lazy('mediosPago')
 
-    return render(request, "Clientes/crear_cuenta.html", {"form": miForm })
-
-def agregar_productos(request):
-    if request.method == "POST":
-        miForm = ProductoForm(request.POST)
-        if miForm.is_valid():
-            producto_nombre = miForm.cleaned_data.get("nombre")
-            producto_cantidad = miForm.cleaned_data.get("cantidad")
-            producto_color = miForm.cleaned_data.get("color")
-            producto_precio = miForm.cleaned_data.get("precio")
-            producto = Producto(nombre_producto=producto_nombre, cantidad=producto_cantidad, color=producto_color, precio=producto_precio)
-            producto.save()
-            return render(request, "Clientes/home.html")
-
-    else:    
-        miForm = ProductoForm()
-
-    return render(request, "Clientes/agregar_producto.html", {"form": miForm })
-
+#--------------------------------------------------------------------------PRODUCTOS
+@login_required
 def buscar(request):
     return render(request, "Clientes/buscar.html")
 
+@login_required
 def buscar_productos(request):
     if request.GET["buscar"]:
         patron = request.GET["buscar"]
-        productos = Producto.objects.filter(nombre_producto__icontains=patron)
-        contexto = {"productos": productos }
-        return render(request, "Clientes/productos.html", contexto)
+        productos = Producto.objects.filter(producto__icontains=patron)
+        contexto = {"producto_list": productos }
+        return render(request, "Clientes/producto_list.html", contexto)
     return HttpResponse("No se ingresaron patrones de busqueda")
 
-def productos(request):
-    contexto = {'productos': Producto.objects.all()}
-    return render(request, "Clientes/productos.html", contexto)
 
-def sucursal(request):
+class ProductoList(LoginRequiredMixin, ListView):
+    model = Producto
+
+
+class ProductoCreate(LoginRequiredMixin, CreateView):
+    model = Producto
+    fields = ['producto', 'cantidad', 'color', 'precio']
+    success_url = reverse_lazy('productos')    
+
+
+class ProductoUpdate(LoginRequiredMixin, UpdateView):
+    model = Producto
+    fields = ['producto', 'cantidad', 'color', 'precio']
+    success_url = reverse_lazy('productos')    
+
+
+class ProductoDelete(LoginRequiredMixin, DeleteView):
+    model = Producto
+    success_url = reverse_lazy('productos')
+
+#--------------------------------------------------------------------------SUCURSAL
+class SucursalList(LoginRequiredMixin, ListView):
+    model = Sucursal
+
+
+class SucursalCreate(LoginRequiredMixin, CreateView):
+    model = Sucursal
+    fields = ['direccion', 'numero', 'ciudad']
+    success_url = reverse_lazy('sucursal')
+
+
+class SucursalUpdate(LoginRequiredMixin, UpdateView):
+    model = Sucursal
+    fields = ['direccion', 'numero', 'ciudad']
+    success_url = reverse_lazy('sucursal')
+
+
+class SucursalDelete(LoginRequiredMixin, DeleteView):
+    model = Sucursal
+    success_url = reverse_lazy('sucursal')
+
+
+#--------------------------------------------------------------------------Login, Registro  
+def login_request(request):
     if request.method == "POST":
-        miForm = SucursalForm(request.POST)
-        if miForm.is_valid():
-            sucursal_direccion = miForm.cleaned_data.get("direccion")
-            sucursal_numero = miForm.cleaned_data.get("numero")
-            sucursal_ciudad = miForm.cleaned_data.get("ciudad")
-            sucursal = Sucursal(direccion=sucursal_direccion, numero=sucursal_numero, ciudad=sucursal_ciudad)
-            sucursal.save()
+        usuario = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=usuario, password=password)
+        if user is not None:
+            login(request, user)
             return render(request, "Clientes/home.html")
+        else:
+            return redirect(reverse_lazy('login'))
+        
+    miForm = AuthenticationForm()
+
+    return render(request, "Clientes/login.html", {"form": miForm })
+
+
+def register(request):
+    if request.method == "POST":
+        miForm = RegistroForm(request.POST)
+        if miForm.is_valid():
+            usuario = miForm.cleaned_data.get("username")
+            miForm.save()
+            return redirect(reverse_lazy('home'))
 
     else:    
-        miForm = SucursalForm()
+        miForm = RegistroForm()
 
-    return render(request, "Clientes/crear_cuenta.html", {"form": miForm })
+    return render(request, "Clientes/registro.html", {"form": miForm })  

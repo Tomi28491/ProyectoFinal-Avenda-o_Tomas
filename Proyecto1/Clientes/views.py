@@ -99,7 +99,6 @@ def login_request(request):
         user = authenticate(request, username=usuario, password=password)
         if user is not None:
             login(request, user)
-
             try:
                 avatar = Avatar.objects.get(user=request.user.id).imagen.url
             except:
@@ -129,7 +128,7 @@ def register(request):
 
     return render(request, "Clientes/registro.html", {"form": miForm })
 
-#--------------------------------------------------------------------------Editar Perfil
+
 @login_required
 def editarPerfil(request):
     usuario = request.user
@@ -145,7 +144,9 @@ def editarPerfil(request):
             user.save()
             return render(request, "Clientes/home.html")
     else:
-        form = UserEditForm(instance=usuario)
+
+        form = UserEditForm(instance=request.user)
+
     return render(request, "Clientes/editarPerfil.html", {"form": form})
 
 
@@ -155,16 +156,20 @@ def agregarAvatar(request):
         form = AvatarForm(request.POST, request.FILES)
         if form.is_valid():
             usuario = User.objects.get(username=request.user)
+
             avatarViejo = Avatar.objects.filter(user=usuario)
             if len(avatarViejo) > 0:
                 for i in range(len(avatarViejo)):
                     avatarViejo[i].delete()
+
             avatar = Avatar(user=usuario, imagen=form.cleaned_data['imagen'])
             avatar.save()
 
             imagen = Avatar.objects.get(user=request.user.id).imagen.url
             request.session["avatar"] = imagen
             return render(request, "Clientes/home.html")
-    else:
+
+    else:    
         form = AvatarForm()
-    return render(request, "Clientes/agregarAvatar.html", {"form": form})
+
+    return render(request, "Clientes/agregarAvatar.html", {"form": form })   
